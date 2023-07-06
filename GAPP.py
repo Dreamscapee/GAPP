@@ -3,7 +3,17 @@ import logging  # For error handling and debugging
 import os  # For getting directory paths
 import threading  # For multi threading
 from pathlib import Path  # For data paths
-from tkinter import BOTH, DoubleVar, E, IntVar, S, StringVar, Tk, W, ttk  # To create the GUI
+from tkinter import (
+    BOTH,
+    DoubleVar,
+    E,
+    IntVar,
+    S,
+    StringVar,
+    Tk,
+    W,
+    ttk,
+)  # To create the GUI
 from tkinter.ttk import Notebook  # For tabs in the GUI
 
 from lxml import html
@@ -13,8 +23,11 @@ from calcs import profileCalc, setupCalc, strategyCalc, wearCalc
 from funcs import *
 
 # Logging setup
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    datefmt='%y-%m-%d %H:%M')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%y-%m-%d %H:%M",
+)
 logger = logging.getLogger(__name__)
 # Handlers
 dataPath = str(Path.home()) + "\\Documents\\GAPP"
@@ -27,8 +40,12 @@ g_handler = logging.FileHandler(gLogFileName)
 f_handler.setLevel(logging.ERROR)
 g_handler.setLevel(logging.DEBUG)
 # Handler Format
-f_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-g_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+f_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+)
+g_handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+)
 # Add Handlers
 logger.addHandler(f_handler)
 logger.addHandler(g_handler)
@@ -45,9 +62,9 @@ class Autoresized_Notebook(Notebook):
         event.widget.configure(height=tab.winfo_reqheight(), width=tab.winfo_reqwidth())
 
 
-'''
+"""
 Data Storage Setup
-'''
+"""
 logger.info("Getting reference to GAPP folder in Documents for storage")
 dataPath = str(Path.home()) + "\\Documents\\GAPP"
 if not os.path.exists(dataPath):
@@ -55,7 +72,9 @@ if not os.path.exists(dataPath):
         logger.info("No GAPP folder found in documents, creating it")
         os.makedirs(dataPath)
     except Exception:
-        logger.exception("Unable to create GAPP folder in documents, GAPP may not have permissions to do so")
+        logger.exception(
+            "Unable to create GAPP folder in documents, GAPP may not have permissions to do so"
+        )
 
 filename = dataPath + "\\data.dat"
 
@@ -86,7 +105,12 @@ finally:
 # Thread Controller - starts and manages threads as required
 def calculateThreadController(*args):
     logger.info("Writing user data to login data file")
-    checkData(filename, inputRememberCredentials.get(), inputUsername.get(), inputPassword.get())
+    checkData(
+        filename,
+        inputRememberCredentials.get(),
+        inputUsername.get(),
+        inputPassword.get(),
+    )
 
     logger.info("Getting tab information to create thread name")
     threadName = notebook.tab(notebook.select(), "text")
@@ -95,14 +119,21 @@ def calculateThreadController(*args):
     for thread in threads:
         if not threadName == thread.name:
             logger.info("Starting new thread: %s", threadName)
-            threading.Thread(daemon=True, name=threadName, target=calculate, args=(threadName,)).start()
+            threading.Thread(
+                daemon=True, name=threadName, target=calculate, args=(threadName,)
+            ).start()
         else:
             logger.warning("Thread of same name already exists: %s", threadName)
 
 
 def fillThreadController(*args):
     logger.info("Writing user data to login data file")
-    checkData(filename, inputRememberCredentials.get(), inputUsername.get(), inputPassword.get())
+    checkData(
+        filename,
+        inputRememberCredentials.get(),
+        inputUsername.get(),
+        inputPassword.get(),
+    )
 
     logger.info("Getting tab information to create thread name")
     threadName = notebook.tab(notebook.select(), "text")
@@ -114,7 +145,9 @@ def fillThreadController(*args):
             if threadName == "Car Wear":
                 threading.Thread(daemon=True, name=threadName, target=fillWear).start()
             elif threadName == "PHA":
-                threading.Thread(daemon=True, name=threadName, target=fillProfile).start()
+                threading.Thread(
+                    daemon=True, name=threadName, target=fillProfile
+                ).start()
         else:
             logger.warning("Thread of same name already exists: %s", threadName)
 
@@ -128,14 +161,14 @@ def calculate(tab):
         password = str(inputPassword.get())
 
         logger.info("Checking user login details are correct and user is in Viper team")
-        if (not checkLogin(username, password)):
+        if not checkLogin(username, password):
             logger.warning("Login details are incorrect")
             warningLabel.set("Incorrect Login Details")
             foregroundColour("Status.Label", "Red")
             root.after(1000, lambda: foregroundColour("Status.Label", "Black"))
             return
 
-        if (tab == "Setup"):
+        if tab == "Setup":
             logger.info("Starting Setup calcuation")
             weather = str(inputWeather.get())
             session = str(inputSession.get())
@@ -148,20 +181,20 @@ def calculate(tab):
             brakes.set(str(setup[3]))
             gear.set(str(setup[4]))
             suspension.set(str(setup[5]))
-        elif (tab == "Strategy"):
+        elif tab == "Strategy":
             logger.info("Getting strategy input")
             try:
-                wear = float(re.findall(r'\d+', inputWear.get())[0])
+                wear = float(re.findall(r"\d+", inputWear.get())[0])
             except:
                 try:
-                    wear = float(re.findall(r'\d+.\d+', inputWear.get())[0])
+                    wear = float(re.findall(r"\d+.\d+", inputWear.get())[0])
                 except:
                     logger.warning("Wear input incorrect format, despite input control")
                     wear = 0.0
                     inputWear.set(0)
 
             try:
-                laps = int(re.findall(r'\d+', inputLaps.get())[0])
+                laps = int(re.findall(r"\d+", inputLaps.get())[0])
             except:
                 try:
                     laps = inputLaps.get()
@@ -190,13 +223,13 @@ def calculate(tab):
                 labelsTotal[i].configure(style="Black.Label")
             labelsTotal[strategy[9]].configure(style="Green.Label")
 
-            logger.info("Getting track information for stragey tab")
+            logger.info("Getting track information for strategy tab")
             GPROnextTrackName.set(strategy[10])
             GPROnextTrackLaps.set(strategy[11])
             GPROnextTrackLapDistance.set(strategy[12])
             GPROnextTrackDistance.set(strategy[13])
             GPROnextTrackPitInOut.set(strategy[14])
-        elif (tab == "Car Wear"):
+        elif tab == "Car Wear":
             logger.info("Creating GPRO session for web scraping")
             # Get user and password
             username = entryUsername.get()
@@ -215,18 +248,29 @@ def calculate(tab):
             browser.follow_link(url_regex=re.compile("DriverProfile"))
             tree = html.fromstring(browser.response().get_data())
             browser.back()
-            driverConcentration = int(tree.xpath("normalize-space(//td[contains(@id, 'Conc')]/text())"))
-            driverTalent = int(tree.xpath("normalize-space(//td[contains(@id, 'Talent')]/text())"))
-            driverExperience = int(tree.xpath("normalize-space(//td[contains(@id, 'Experience')]/text())"))
-            driverFactor = (0.998789138 ** driverConcentration) * (0.998751839 ** driverTalent) * (
-                0.998707677 ** driverExperience)
+            driverConcentration = int(
+                tree.xpath("normalize-space(//td[contains(@id, 'Conc')]/text())")
+            )
+            driverTalent = int(
+                tree.xpath("normalize-space(//td[contains(@id, 'Talent')]/text())")
+            )
+            driverExperience = int(
+                tree.xpath("normalize-space(//td[contains(@id, 'Experience')]/text())")
+            )
+            driverFactor = (
+                (0.998789138**driverConcentration)
+                * (0.998751839**driverTalent)
+                * (0.998707677**driverExperience)
+            )
 
             # Get the track details
             logger.info("Getting track information")
             browser.follow_link(url_regex=re.compile("TrackDetails"))
             tree = html.fromstring(browser.response().get_data())
             browser.back()
-            trackName = str(tree.xpath("normalize-space(//h1[contains(@class, 'block')]/text())"))
+            trackName = str(
+                tree.xpath("normalize-space(//h1[contains(@class, 'block')]/text())")
+            )
             trackName = trackName.strip()
 
             logger.info("Checking user input is in corret format")
@@ -248,20 +292,45 @@ def calculate(tab):
 
             logger.info("Calculating and applying car wear")
             for i in range(len(startWears)):
-                raceWears[i].set(round(float(
-                    wearCalc(startWears[i].get(), int(wearlevels[i].get()), driverFactor, trackName,
-                             wearClearTrackRisk.get(), i)), 2))
-                endWears[i].set(int(round(raceWears[i].get() + round(startWears[i].get(), 0), 0)))
-                if (endWears[i].get() >= 90):
+                raceWears[i].set(
+                    round(
+                        float(
+                            wearCalc(
+                                startWears[i].get(),
+                                int(wearlevels[i].get()),
+                                driverFactor,
+                                trackName,
+                                wearClearTrackRisk.get(),
+                                i,
+                            )
+                        ),
+                        2,
+                    )
+                )
+                endWears[i].set(
+                    int(round(raceWears[i].get() + round(startWears[i].get(), 0), 0))
+                )
+                if endWears[i].get() >= 90:
                     endLabels[i].configure(style="Red.Label")
-                elif (endWears[i].get() >= 80):
+                elif endWears[i].get() >= 80:
                     endLabels[i].configure(style="Orange.Label")
                 else:
                     endLabels[i].configure(style="Black.Label")
-        elif (tab == "PHA"):
+        elif tab == "PHA":
             logger.info("Starting PHA calculation")
-            partNames = ["Chassis", "Engine", "Front Wing", "Rear Wing", "Underbody", "Sidepods", "Cooling", "Gearbox",
-                         "Brakes", "Suspension", "Electronics"]
+            partNames = [
+                "Chassis",
+                "Engine",
+                "Front Wing",
+                "Rear Wing",
+                "Underbody",
+                "Sidepods",
+                "Cooling",
+                "Gearbox",
+                "Brakes",
+                "Suspension",
+                "Electronics",
+            ]
 
             for i in range(len(PHA) - 1):
                 profile = profileCalc(partNames[i], profilePartLevels[i].get())
@@ -285,7 +354,7 @@ def calculate(tab):
                 subTotal += PHAParts[i].get()
                 subTotal += profileTesting[i].get()
                 profileTotals[i].set(int(round(subTotal, 0)))
-        elif (tab == "Analysis"):
+        elif tab == "Analysis":
             # First step is to import current data, which will allow a long running data file for the user
             pastSessionData = []
             try:
@@ -297,7 +366,9 @@ def calculate(tab):
                             rowData[key] = row[key]
                         pastSessionData.append(rowData)
             except:
-                logger.warning("Unable to open RaceData.csv data file - might not exist or permission is denied")
+                logger.warning(
+                    "Unable to open RaceData.csv data file - might not exist or permission is denied"
+                )
 
             logger.info("Starting pre- and post-race analysis")
             # Create the logon payload and create the session
@@ -313,17 +384,19 @@ def calculate(tab):
             # Gather the session information for the upcoming or past race, based on input choice
             logger.info("Getting ID data for season and race")
             tree = html.fromstring(browser.response().get_data())
-            rawData = tree.xpath("normalize-space(//strong[contains(text(), 'Next race:')]/../text())")
+            rawData = tree.xpath(
+                "normalize-space(//strong[contains(text(), 'Next race:')]/../text())"
+            )
             reSearch = re.findall(r"(\d{2}),\s\w+\s(\d+)", rawData)[0]
             seasonNumber = reSearch[0]
             raceNumber = reSearch[1]
 
             raceState = inputAnalysis.get()
 
-            if (raceState == "Pre-Race"):
+            if raceState == "Pre-Race":
                 logger.info("Calculating for Pre-Race")
                 # Creating raceID
-                if (len(raceNumber) == 1):
+                if len(raceNumber) == 1:
                     raceNumber = "0" + raceNumber
                 raceID = "S" + seasonNumber + "R" + raceNumber
 
@@ -354,7 +427,8 @@ def calculate(tab):
                     logger.info("Analysing for Q1")
                     tree = html.fromstring(Q1Result)
                     Q1LapData = tree.xpath(
-                        "//img[contains(@src, 'suppliers')]/../..//*[string-length(text()) > 2]/text()")
+                        "//img[contains(@src, 'suppliers')]/../..//*[string-length(text()) > 2]/text()"
+                    )
                     Q1LapData += tree.xpath("//img[contains(@src, 'suppliers')]/@alt")
                     Q1LapData.remove(Q1LapData[0])
                     Q1LapData.remove(Q1LapData[1])
@@ -370,12 +444,16 @@ def calculate(tab):
                         "Suspension": Q1LapData[6],
                         "Compound": Q1LapData[7],
                         "Risk O/D": Q1LapData[8],
-                        "Supplier": Q1LapData[9]
+                        "Supplier": Q1LapData[9],
                     }
                     sessionDicts.append(Q1LapDict)
                 except Exception:
-                    logger.exception("Pre-Race analysis failed in Q1 - user probably hasn't done Q1 yet")
-                    logger.info("Updating status label to notify user of completed calculations")
+                    logger.exception(
+                        "Pre-Race analysis failed in Q1 - user probably hasn't done Q1 yet"
+                    )
+                    logger.info(
+                        "Updating status label to notify user of completed calculations"
+                    )
                     warningLabel.set("Q1 Not Done")
                     foregroundColour("Status.Label", "#FF0000")
                     root.after(1000, lambda: foregroundColour("Status.Label", "Black"))
@@ -386,7 +464,8 @@ def calculate(tab):
                     logger.info("Analysing for Q2")
                     tree = html.fromstring(Q2Result)
                     Q2LapData = tree.xpath(
-                        "//img[contains(@src, 'suppliers')]/../..//*[string-length(text()) > 2]/text()")
+                        "//img[contains(@src, 'suppliers')]/../..//*[string-length(text()) > 2]/text()"
+                    )
                     Q2LapData += tree.xpath("//img[contains(@src, 'suppliers')]/@alt")
                     Q2LapData.remove(Q2LapData[0])
                     Q2LapData.remove(Q2LapData[1])
@@ -402,12 +481,16 @@ def calculate(tab):
                         "Suspension": Q2LapData[6],
                         "Compound": Q2LapData[7],
                         "Risk O/D": Q2LapData[8],
-                        "Supplier": Q2LapData[9]
+                        "Supplier": Q2LapData[9],
                     }
                     sessionDicts.append(Q2LapDict)
                 except Exception:
-                    logger.exception("Pre-Race analysis failed in Q2 - user probably hasn't done Q2 yet")
-                    logger.info("Updating status label to notify user of completed calculations")
+                    logger.exception(
+                        "Pre-Race analysis failed in Q2 - user probably hasn't done Q2 yet"
+                    )
+                    logger.info(
+                        "Updating status label to notify user of completed calculations"
+                    )
                     warningLabel.set("Q2 Not Done")
                     foregroundColour("Status.Label", "#FF0000")
                     root.after(1000, lambda: foregroundColour("Status.Label", "Black"))
@@ -422,35 +505,90 @@ def calculate(tab):
                     SetupDict["RaceID"] = raceID
                     SetupDict["Session"] = "Setup"
                     # Car Setup
-                    SetupDict["FWing"] = str(tree.xpath("//input[contains(@id, 'FWing')]/@value")[0])
-                    SetupDict["RWing"] = str(tree.xpath("//input[contains(@id, 'RWing')]/@value")[0])
-                    SetupDict["Engine"] = str(tree.xpath("//input[contains(@id, 'Engine')]/@value")[0])
-                    SetupDict["Brakes"] = str(tree.xpath("//input[contains(@id, 'Brakes')]/@value")[0])
-                    SetupDict["Gear"] = str(tree.xpath("//input[contains(@id, 'Gear')]/@value")[0])
-                    SetupDict["Suspension"] = str(tree.xpath("//input[contains(@id, 'Suspension')]/@value")[0])
+                    SetupDict["FWing"] = str(
+                        tree.xpath("//input[contains(@id, 'FWing')]/@value")[0]
+                    )
+                    SetupDict["RWing"] = str(
+                        tree.xpath("//input[contains(@id, 'RWing')]/@value")[0]
+                    )
+                    SetupDict["Engine"] = str(
+                        tree.xpath("//input[contains(@id, 'Engine')]/@value")[0]
+                    )
+                    SetupDict["Brakes"] = str(
+                        tree.xpath("//input[contains(@id, 'Brakes')]/@value")[0]
+                    )
+                    SetupDict["Gear"] = str(
+                        tree.xpath("//input[contains(@id, 'Gear')]/@value")[0]
+                    )
+                    SetupDict["Suspension"] = str(
+                        tree.xpath("//input[contains(@id, 'Suspension')]/@value")[0]
+                    )
                     # Fuel
-                    SetupDict["Fuel Start"] = str(tree.xpath("//input[contains(@name, 'FuelStart')]/@value")[0])
-                    SetupDict["Stop 1 Refuel"] = str(tree.xpath("//input[contains(@name, 'FuelStop1')]/@value")[0])
-                    SetupDict["Stop 2 Refuel"] = str(tree.xpath("//input[contains(@name, 'FuelStop2')]/@value")[0])
-                    SetupDict["Stop 3 Refuel"] = str(tree.xpath("//input[contains(@name, 'FuelStop3')]/@value")[0])
-                    SetupDict["Stop 4 Refuel"] = str(tree.xpath("//input[contains(@name, 'FuelStop4')]/@value")[0])
-                    SetupDict["Stop 5 Refuel"] = str(tree.xpath("//input[contains(@name, 'FuelStop5')]/@value")[0])
+                    SetupDict["Fuel Start"] = str(
+                        tree.xpath("//input[contains(@name, 'FuelStart')]/@value")[0]
+                    )
+                    SetupDict["Stop 1 Refuel"] = str(
+                        tree.xpath("//input[contains(@name, 'FuelStop1')]/@value")[0]
+                    )
+                    SetupDict["Stop 2 Refuel"] = str(
+                        tree.xpath("//input[contains(@name, 'FuelStop2')]/@value")[0]
+                    )
+                    SetupDict["Stop 3 Refuel"] = str(
+                        tree.xpath("//input[contains(@name, 'FuelStop3')]/@value")[0]
+                    )
+                    SetupDict["Stop 4 Refuel"] = str(
+                        tree.xpath("//input[contains(@name, 'FuelStop4')]/@value")[0]
+                    )
+                    SetupDict["Stop 5 Refuel"] = str(
+                        tree.xpath("//input[contains(@name, 'FuelStop5')]/@value")[0]
+                    )
                     # Risks
-                    SetupDict["Risk O/D"] = str(
-                        tree.xpath("//input[contains(@name, 'RiskOver')]/@value")[0]) + "/" + str(
-                        tree.xpath("//input[contains(@name, 'RiskDefend')]/@value")[0])
-                    SetupDict["Risk CT"] = str(tree.xpath("//input[@name='DriverRisk']/@value")[0]) + "/" + str(
-                        tree.xpath("//input[contains(@name, 'RiskWet')]/@value")[0])
+                    SetupDict["Risk O/D"] = (
+                        str(
+                            tree.xpath("//input[contains(@name, 'RiskOver')]/@value")[0]
+                        )
+                        + "/"
+                        + str(
+                            tree.xpath("//input[contains(@name, 'RiskDefend')]/@value")[
+                                0
+                            ]
+                        )
+                    )
+                    SetupDict["Risk CT"] = (
+                        str(tree.xpath("//input[@name='DriverRisk']/@value")[0])
+                        + "/"
+                        + str(
+                            tree.xpath("//input[contains(@name, 'RiskWet')]/@value")[0]
+                        )
+                    )
                     # Boosts
-                    SetupDict["Boosts"] = str(
-                        tree.xpath("//input[contains(@name, 'BoostLap1')]/@value")[0]) + "/" + str(
-                        tree.xpath("//input[contains(@name, 'BoostLap2')]/@value")[0]) + "/" + str(
-                        tree.xpath("//input[contains(@name, 'BoostLap3')]/@value")[0])
+                    SetupDict["Boosts"] = (
+                        str(
+                            tree.xpath("//input[contains(@name, 'BoostLap1')]/@value")[
+                                0
+                            ]
+                        )
+                        + "/"
+                        + str(
+                            tree.xpath("//input[contains(@name, 'BoostLap2')]/@value")[
+                                0
+                            ]
+                        )
+                        + "/"
+                        + str(
+                            tree.xpath("//input[contains(@name, 'BoostLap3')]/@value")[
+                                0
+                            ]
+                        )
+                    )
                     sessionDicts.append(SetupDict)
                 except Exception:
                     logger.exception(
-                        "Pre-Race analysis failed in race setup - user probably hasn't done race setup yet")
-                    logger.info("Updating status label to notify user of completed calculations")
+                        "Pre-Race analysis failed in race setup - user probably hasn't done race setup yet"
+                    )
+                    logger.info(
+                        "Updating status label to notify user of completed calculations"
+                    )
                     warningLabel.set("Setup Not Done")
                     foregroundColour("Status.Label", "#FF0000")
                     root.after(1000, lambda: foregroundColour("Status.Label", "Black"))
@@ -513,7 +651,7 @@ def calculate(tab):
                             "Energy Start",
                             "Energy End",
                             "Driver Stats Start",
-                            "Driver Stats Change"
+                            "Driver Stats Change",
                         ]
 
                         logger.info("Writing pre-race data to CSV file")
@@ -521,29 +659,35 @@ def calculate(tab):
                         if len(pastSessionData) == 0:
                             writer.writeheader()
                         for sessionDict in sessionDicts:
-                            if not any(session["RaceID"] == sessionDict["RaceID"] and session["Session"] == sessionDict[
-                                "Session"] for session in pastSessionData):
+                            if not any(
+                                session["RaceID"] == sessionDict["RaceID"]
+                                and session["Session"] == sessionDict["Session"]
+                                for session in pastSessionData
+                            ):
                                 try:
                                     logger.info("Writing session to data file")
                                     writer.writerow(sessionDict)
                                 except Exception:
-                                    logger.exception("Unable to write session to data file")
+                                    logger.exception(
+                                        "Unable to write session to data file"
+                                    )
                             else:
                                 logger.warning("Session already exists in RaceData.csv")
                 except Exception:
                     logger.exception(
-                        "Unable to open data file for analysis - file might be open in another application")
+                        "Unable to open data file for analysis - file might be open in another application"
+                    )
                     warningLabel.set("File error: permission denied")
                     foregroundColour("Status.Label", "Red")
                     root.after(1000, lambda: foregroundColour("Status.Label", "Black"))
                     return
 
-            elif (raceState == "Post-Race"):
+            elif raceState == "Post-Race":
                 logger.info("Calculating for Post-Race")
                 # Creating raceID
-                if (not raceNumber == "1"):
+                if not raceNumber == "1":
                     raceNumber = str(int(raceNumber) - 1)
-                    if (len(raceNumber) == 1):
+                    if len(raceNumber) == 1:
                         raceNumber = "0" + raceNumber
                 else:
                     seasonNumber = str(int(seasonNumber) - 1)
@@ -563,7 +707,9 @@ def calculate(tab):
                 browser.back()
 
                 # Find setup informaiton
-                raceSetupSearch = tree.xpath("//td[contains(text(), 'Race')]/../td/text()")
+                raceSetupSearch = tree.xpath(
+                    "//td[contains(text(), 'Race')]/../td/text()"
+                )
                 raceSetup = [str(element) for element in raceSetupSearch]
                 raceSetup.remove("Race")
                 raceDict["FWing"] = raceSetup[0]
@@ -575,18 +721,25 @@ def calculate(tab):
                 raceDict["Compound"] = raceSetup[6]
 
                 # Find race risks
-                raceRiskSearch = tree.xpath("//th[contains(text(), 'Overtake')]/../../tr[7]/td/text()")
+                raceRiskSearch = tree.xpath(
+                    "//th[contains(text(), 'Overtake')]/../../tr[7]/td/text()"
+                )
                 raceRisk = [str(element) for element in raceRiskSearch]
                 raceDict["Risk O/D"] = str(raceRisk[0]) + "/" + str(raceRisk[1])
                 raceDict["Risk CT"] = str(raceRisk[2] + "/" + str(raceRisk[3]))
 
                 # Tyre supplier
-                raceDict["Supplier"] = tree.xpath("normalize-space(//img[contains(@src, 'suppliers')]/@title)")
+                raceDict["Supplier"] = tree.xpath(
+                    "normalize-space(//img[contains(@src, 'suppliers')]/@title)"
+                )
 
                 # Find driver stats and changes
-                raceDriverStatSearch = tree.xpath("//a[contains(@href, 'DriverProfile.asp')]/../../td/text()")
+                raceDriverStatSearch = tree.xpath(
+                    "//a[contains(@href, 'DriverProfile.asp')]/../../td/text()"
+                )
                 raceDriverChangeSearch = tree.xpath(
-                    "//a[contains(@href, 'DriverProfile.asp')]/../../../tr[4]/td/text()")
+                    "//a[contains(@href, 'DriverProfile.asp')]/../../../tr[4]/td/text()"
+                )
                 raceDriverStats = []
                 raceDriverChange = []
                 for element in raceDriverStatSearch:
@@ -604,73 +757,118 @@ def calculate(tab):
 
                 # Find driver energy
                 raceEnergyStartSearch = tree.xpath(
-                    "normalize-space(//td[contains(@title, 'Before the race')]/div[contains(@class, 'barLabel')]/text())")
+                    "normalize-space(//td[contains(@title, 'Before the race')]/div[contains(@class, 'barLabel')]/text())"
+                )
                 raceEnergyEndSearch = tree.xpath(
-                    "normalize-space(//td[contains(@title, 'After the race')]/div[contains(@class, 'barLabel')]/text())")
+                    "normalize-space(//td[contains(@title, 'After the race')]/div[contains(@class, 'barLabel')]/text())"
+                )
                 raceDict["Energy Start"] = raceEnergyStartSearch
                 raceDict["Energy End"] = raceEnergyEndSearch
 
                 # Start and Finish positions
-                racePositionSearch = tree.xpath("//th[contains(text(), 'Positions')]/../../tr[3]/td/text()")
+                racePositionSearch = tree.xpath(
+                    "//th[contains(text(), 'Positions')]/../../tr[3]/td/text()"
+                )
                 racePosition = [str(element) for element in racePositionSearch]
                 raceDict["Start Position"] = racePosition[0]
                 raceDict["End Position"] = racePosition[1]
 
                 # Fastest lap time
                 raceDict["Fastest Lap"] = tree.xpath(
-                    "normalize-space(//font[contains(@color, 'lime') and contains(text(), ':')]/text())")
+                    "normalize-space(//font[contains(@color, 'lime') and contains(text(), ':')]/text())"
+                )
 
                 # Start fuel
-                raceFuelStartSearch = tree.xpath("normalize-space(//div[contains(text(), 'Start fuel:')]/b/text())")
+                raceFuelStartSearch = tree.xpath(
+                    "normalize-space(//div[contains(text(), 'Start fuel:')]/b/text())"
+                )
                 raceDict["Fuel Start"] = re.findall(r"\d+", raceFuelStartSearch)[0]
 
                 # Stops
-                raceStopsSearch = tree.xpath("//td[starts-with(text(), 'Stop')]/..//text()")
+                raceStopsSearch = tree.xpath(
+                    "//td[starts-with(text(), 'Stop')]/..//text()"
+                )
                 raceStops = []
                 for element in raceStopsSearch:
                     try:
-                        raceStops.append(re.findall(r"[a-zA-Z0-9 \u00a0]+", str(element))[0])
+                        raceStops.append(
+                            re.findall(r"[a-zA-Z0-9 \u00a0]+", str(element))[0]
+                        )
                     except:
                         pass
                 for i in range(len(raceStops) // 7):
                     raceDict["Stop " + str(i + 1) + " Lap"] = raceStops[(i * 7) + 1]
-                    raceDict["Stop " + str(i + 1) + " Tyres/Fuel"] = str(raceStops[(i * 7) + 3]) + "% / " + str(
-                        raceStops[(i * 7) + 4]) + "%"
+                    raceDict["Stop " + str(i + 1) + " Tyres/Fuel"] = (
+                        str(raceStops[(i * 7) + 3])
+                        + "% / "
+                        + str(raceStops[(i * 7) + 4])
+                        + "%"
+                    )
                     raceDict["Stop " + str(i + 1) + " Refuel"] = raceStops[(i * 7) + 5]
                     raceDict["Stop " + str(i + 1) + " Time"] = raceStops[(i * 7) + 6]
 
                 # End condition
                 raceTyreEndSearch = tree.xpath(
-                    "normalize-space(//p[contains(text(), 'Tyres condition after finish:')]/b//text())")
+                    "normalize-space(//p[contains(text(), 'Tyres condition after finish:')]/b//text())"
+                )
                 raceDict["Tyres End"] = raceTyreEndSearch
 
                 # End fuel
                 raceFuelEndSearch = tree.xpath(
-                    "normalize-space(//p[contains(text(), 'Fuel left in the car after finish:')]/b/text())")
+                    "normalize-space(//p[contains(text(), 'Fuel left in the car after finish:')]/b/text())"
+                )
                 raceDict["Fuel End"] = raceFuelEndSearch
 
                 # Finances
                 raceFinancesTotalSearch = tree.xpath(
-                    "normalize-space(//td[contains(text(), 'Total:')]/../td[2]/text())")
+                    "normalize-space(//td[contains(text(), 'Total:')]/../td[2]/text())"
+                )
                 raceFinancesBalanceSearch = tree.xpath(
-                    "normalize-space(//td[contains(text(), 'Current balance')]/../td[2]//text())")
-                raceDict["Finances"] = raceFinancesTotalSearch + " / " + raceFinancesBalanceSearch
+                    "normalize-space(//td[contains(text(), 'Current balance')]/../td[2]//text())"
+                )
+                raceDict["Finances"] = (
+                    raceFinancesTotalSearch + " / " + raceFinancesBalanceSearch
+                )
 
                 # Car parts
-                raceCarSearch = tree.xpath("//b[contains(text(), 'Cha')]/../../../tr/td/text()")
+                raceCarSearch = tree.xpath(
+                    "//b[contains(text(), 'Cha')]/../../../tr/td/text()"
+                )
                 raceCar = [str(element) for element in raceCarSearch]
 
-                raceDict["CHA Level/Start/End"] = str(raceCar[0]) + "/" + str(raceCar[11]) + "/" + str(raceCar[22])
-                raceDict["ENG Level/Start/End"] = str(raceCar[1]) + "/" + str(raceCar[12]) + "/" + str(raceCar[23])
-                raceDict["FWI Level/Start/End"] = str(raceCar[2]) + "/" + str(raceCar[13]) + "/" + str(raceCar[24])
-                raceDict["RWI Level/Start/End"] = str(raceCar[3]) + "/" + str(raceCar[14]) + "/" + str(raceCar[25])
-                raceDict["UND Level/Start/End"] = str(raceCar[4]) + "/" + str(raceCar[15]) + "/" + str(raceCar[26])
-                raceDict["SID Level/Start/End"] = str(raceCar[5]) + "/" + str(raceCar[16]) + "/" + str(raceCar[27])
-                raceDict["COL Level/Start/End"] = str(raceCar[6]) + "/" + str(raceCar[17]) + "/" + str(raceCar[28])
-                raceDict["GEA Level/Start/End"] = str(raceCar[7]) + "/" + str(raceCar[18]) + "/" + str(raceCar[29])
-                raceDict["BRA Level/Start/End"] = str(raceCar[8]) + "/" + str(raceCar[19]) + "/" + str(raceCar[30])
-                raceDict["SUS Level/Start/End"] = str(raceCar[9]) + "/" + str(raceCar[20]) + "/" + str(raceCar[31])
-                raceDict["ELE Level/Start/End"] = str(raceCar[10]) + "/" + str(raceCar[21]) + "/" + str(raceCar[32])
+                raceDict["CHA Level/Start/End"] = (
+                    str(raceCar[0]) + "/" + str(raceCar[11]) + "/" + str(raceCar[22])
+                )
+                raceDict["ENG Level/Start/End"] = (
+                    str(raceCar[1]) + "/" + str(raceCar[12]) + "/" + str(raceCar[23])
+                )
+                raceDict["FWI Level/Start/End"] = (
+                    str(raceCar[2]) + "/" + str(raceCar[13]) + "/" + str(raceCar[24])
+                )
+                raceDict["RWI Level/Start/End"] = (
+                    str(raceCar[3]) + "/" + str(raceCar[14]) + "/" + str(raceCar[25])
+                )
+                raceDict["UND Level/Start/End"] = (
+                    str(raceCar[4]) + "/" + str(raceCar[15]) + "/" + str(raceCar[26])
+                )
+                raceDict["SID Level/Start/End"] = (
+                    str(raceCar[5]) + "/" + str(raceCar[16]) + "/" + str(raceCar[27])
+                )
+                raceDict["COL Level/Start/End"] = (
+                    str(raceCar[6]) + "/" + str(raceCar[17]) + "/" + str(raceCar[28])
+                )
+                raceDict["GEA Level/Start/End"] = (
+                    str(raceCar[7]) + "/" + str(raceCar[18]) + "/" + str(raceCar[29])
+                )
+                raceDict["BRA Level/Start/End"] = (
+                    str(raceCar[8]) + "/" + str(raceCar[19]) + "/" + str(raceCar[30])
+                )
+                raceDict["SUS Level/Start/End"] = (
+                    str(raceCar[9]) + "/" + str(raceCar[20]) + "/" + str(raceCar[31])
+                )
+                raceDict["ELE Level/Start/End"] = (
+                    str(raceCar[10]) + "/" + str(raceCar[21]) + "/" + str(raceCar[32])
+                )
 
                 # Write the data to file
                 try:
@@ -731,15 +929,17 @@ def calculate(tab):
                             "Energy Start",
                             "Energy End",
                             "Driver Stats Start",
-                            "Driver Stats Change"
+                            "Driver Stats Change",
                         ]
 
                         logger.info("Writing pre-race data to CSV file")
                         writer = csv.DictWriter(csvFile, fieldnames=fieldnames)
                         if len(pastSessionData) == 0:
                             writer.writeheader()
-                        if not any(session["RaceID"] == raceID and session["Session"] == "Race" for session in
-                                   pastSessionData):
+                        if not any(
+                            session["RaceID"] == raceID and session["Session"] == "Race"
+                            for session in pastSessionData
+                        ):
                             try:
                                 logger.info("Writing session to data file")
                                 writer.writerow(raceDict)
@@ -749,14 +949,16 @@ def calculate(tab):
                             logger.warning("Session already exists in RaceData.csv")
                 except Exception:
                     logger.exception(
-                        "Unable to open data file for analysis - file might be open in another application")
+                        "Unable to open data file for analysis - file might be open in another application"
+                    )
                     warningLabel.set("File error: permission denied")
                     foregroundColour("Status.Label", "Red")
                     root.after(1000, lambda: foregroundColour("Status.Label", "Black"))
                     return
             else:
                 logger.error(
-                    "Unable to get session information, so unable to perform analysis, this shouldn't be possible with radio buttons")
+                    "Unable to get session information, so unable to perform analysis, this shouldn't be possible with radio buttons"
+                )
                 warningLabel.set("Error")
                 foregroundColour("Status.Label", "Red")
                 root.after(1000, lambda: foregroundColour("Status.Label", "Black"))
@@ -776,7 +978,7 @@ def fillWear():
         username = entryUsername.get()
         password = entryPassword.get()
 
-        if (not checkLogin(username, password)):
+        if not checkLogin(username, password):
             logger.warning("Incorrect login details provided by user")
             warningLabel.set("Incorrect Login Details")
             foregroundColour("Status.Label", "Red")
@@ -799,82 +1001,225 @@ def fillWear():
         tree = html.fromstring(browser.response().get_data())
         browser.back()
 
-        wearlevelChassis.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Chassis')]/../../td[2]/text())")))
-        wearlevelEngine.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Engine')]/../../td[2]/text())")))
-        wearlevelFWing.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Front wing')]/../../td[2]/text())")))
-        wearlevelRWing.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Rear wing')]/../../td[2]/text())")))
+        wearlevelChassis.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Chassis')]/../../td[2]/text())"
+                )
+            )
+        )
+        wearlevelEngine.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Engine')]/../../td[2]/text())"
+                )
+            )
+        )
+        wearlevelFWing.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Front wing')]/../../td[2]/text())"
+                )
+            )
+        )
+        wearlevelRWing.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Rear wing')]/../../td[2]/text())"
+                )
+            )
+        )
         wearlevelUnderbody.set(
-            int(tree.xpath("normalize-space(//b[contains(text(), 'Underbody')]/../../td[2]/text())")))
-        wearlevelSidepods.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Sidepods')]/../../td[2]/text())")))
-        wearlevelCooling.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Cooling')]/../../td[2]/text())")))
-        wearlevelGearbox.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Gearbox')]/../../td[2]/text())")))
-        wearlevelBrakes.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Brakes')]/../../td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Underbody')]/../../td[2]/text())"
+                )
+            )
+        )
+        wearlevelSidepods.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Sidepods')]/../../td[2]/text())"
+                )
+            )
+        )
+        wearlevelCooling.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Cooling')]/../../td[2]/text())"
+                )
+            )
+        )
+        wearlevelGearbox.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Gearbox')]/../../td[2]/text())"
+                )
+            )
+        )
+        wearlevelBrakes.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Brakes')]/../../td[2]/text())"
+                )
+            )
+        )
         wearlevelSuspension.set(
-            int(tree.xpath("normalize-space(//b[contains(text(), 'Suspension')]/../../td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Suspension')]/../../td[2]/text())"
+                )
+            )
+        )
         wearlevelElectronics.set(
-            int(tree.xpath("normalize-space(//b[contains(text(), 'Electronics')]/../../td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Electronics')]/../../td[2]/text())"
+                )
+            )
+        )
 
-        carWearChassis = str(tree.xpath("normalize-space(//b[contains(text(), 'Chassis')]/../../td[4]/text())"))
-        if (carWearChassis == ""):
+        carWearChassis = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Chassis')]/../../td[4]/text())"
+            )
+        )
+        if carWearChassis == "":
             carWearChassis = str(
-                tree.xpath("normalize-space(//b[contains(text(), 'Chassis')]/../../td[4]/font/text())"))
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Chassis')]/../../td[4]/font/text())"
+                )
+            )
         wearChassis.set(int((re.findall(r"\d+", carWearChassis))[0]))
 
-        carWearEngine = str(tree.xpath("normalize-space(//b[contains(text(), 'Engine')]/../../td[4]/text())"))
-        if (carWearEngine == ""):
-            carWearEngine = str(tree.xpath("normalize-space(//b[contains(text(), 'Engine')]/../../td[4]/font/text())"))
+        carWearEngine = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Engine')]/../../td[4]/text())"
+            )
+        )
+        if carWearEngine == "":
+            carWearEngine = str(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Engine')]/../../td[4]/font/text())"
+                )
+            )
         wearEngine.set(int((re.findall(r"\d+", carWearEngine))[0]))
 
-        carWearFrontWing = str(tree.xpath("normalize-space(//b[contains(text(), 'Front wing')]/../../td[4]/text())"))
-        if (carWearFrontWing == ""):
+        carWearFrontWing = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Front wing')]/../../td[4]/text())"
+            )
+        )
+        if carWearFrontWing == "":
             carWearFrontWing = str(
-                tree.xpath("normalize-space(//b[contains(text(), 'Front wing')]/../../td[4]/font/text())"))
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Front wing')]/../../td[4]/font/text())"
+                )
+            )
         wearFWing.set(int((re.findall(r"\d+", carWearFrontWing))[0]))
 
-        carWearRearWing = str(tree.xpath("normalize-space(//b[contains(text(), 'Rear wing')]/../../td[4]/text())"))
-        if (carWearRearWing == ""):
+        carWearRearWing = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Rear wing')]/../../td[4]/text())"
+            )
+        )
+        if carWearRearWing == "":
             carWearRearWing = str(
-                tree.xpath("normalize-space(//b[contains(text(), 'Rear wing')]/../../td[4]/font/text())"))
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Rear wing')]/../../td[4]/font/text())"
+                )
+            )
         wearRWing.set(int((re.findall(r"\d+", carWearRearWing))[0]))
 
-        carWearUnderbody = str(tree.xpath("normalize-space(//b[contains(text(), 'Underbody')]/../../td[4]/text())"))
-        if (carWearUnderbody == ""):
+        carWearUnderbody = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Underbody')]/../../td[4]/text())"
+            )
+        )
+        if carWearUnderbody == "":
             carWearUnderbody = str(
-                tree.xpath("normalize-space(//b[contains(text(), 'Underbody')]/../../td[4]/font/text())"))
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Underbody')]/../../td[4]/font/text())"
+                )
+            )
         wearUnderbody.set(int((re.findall(r"\d+", carWearUnderbody))[0]))
 
-        carWearSidepod = str(tree.xpath("normalize-space(//b[contains(text(), 'Sidepods')]/../../td[4]/text())"))
-        if (carWearSidepod == ""):
+        carWearSidepod = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Sidepods')]/../../td[4]/text())"
+            )
+        )
+        if carWearSidepod == "":
             carWearSidepod = str(
-                tree.xpath("normalize-space(//b[contains(text(), 'Sidepods')]/../../td[4]/font/text())"))
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Sidepods')]/../../td[4]/font/text())"
+                )
+            )
         wearSidepods.set(int((re.findall(r"\d+", carWearSidepod))[0]))
 
-        carWearCooling = str(tree.xpath("normalize-space(//b[contains(text(), 'Cooling')]/../../td[4]/text())"))
-        if (carWearCooling == ""):
+        carWearCooling = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Cooling')]/../../td[4]/text())"
+            )
+        )
+        if carWearCooling == "":
             carWearCooling = str(
-                tree.xpath("normalize-space(//b[contains(text(), 'Cooling')]/../../td[4]/font/text())"))
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Cooling')]/../../td[4]/font/text())"
+                )
+            )
         wearCooling.set(int((re.findall(r"\d+", carWearCooling))[0]))
 
-        carWearGears = str(tree.xpath("normalize-space(//b[contains(text(), 'Gearbox')]/../../td[4]/text())"))
-        if (carWearGears == ""):
-            carWearGears = str(tree.xpath("normalize-space(//b[contains(text(), 'Gearbox')]/../../td[4]/font/text())"))
+        carWearGears = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Gearbox')]/../../td[4]/text())"
+            )
+        )
+        if carWearGears == "":
+            carWearGears = str(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Gearbox')]/../../td[4]/font/text())"
+                )
+            )
         wearGearbox.set(int((re.findall(r"\d+", carWearGears))[0]))
 
-        carWearBrakes = str(tree.xpath(r"normalize-space(//b[contains(text(), 'Brakes')]/../../td[4]/text())"))
-        if (carWearBrakes == ""):
-            carWearBrakes = str(tree.xpath("normalize-space(//b[contains(text(), 'Brakes')]/../../td[4]/font/text())"))
+        carWearBrakes = str(
+            tree.xpath(
+                r"normalize-space(//b[contains(text(), 'Brakes')]/../../td[4]/text())"
+            )
+        )
+        if carWearBrakes == "":
+            carWearBrakes = str(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Brakes')]/../../td[4]/font/text())"
+                )
+            )
         wearBrakes.set(int((re.findall(r"\d+", carWearBrakes))[0]))
 
-        carWearSuspension = str(tree.xpath("normalize-space(//b[contains(text(), 'Suspension')]/../../td[4]/text())"))
-        if (carWearSuspension == ""):
+        carWearSuspension = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Suspension')]/../../td[4]/text())"
+            )
+        )
+        if carWearSuspension == "":
             carWearSuspension = str(
-                tree.xpath("normalize-space(//b[contains(text(), 'Suspension')]/../../td[4]/font/text())"))
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Suspension')]/../../td[4]/font/text())"
+                )
+            )
         wearSuspension.set(int((re.findall(r"\d+", carWearSuspension))[0]))
 
-        carWearElectronics = str(tree.xpath("normalize-space(//b[contains(text(), 'Electronics')]/../../td[4]/text())"))
-        if (carWearElectronics == ""):
+        carWearElectronics = str(
+            tree.xpath(
+                "normalize-space(//b[contains(text(), 'Electronics')]/../../td[4]/text())"
+            )
+        )
+        if carWearElectronics == "":
             carWearElectronics = str(
-                tree.xpath("normalize-space(//b[contains(text(), 'Electronics')]/../../td[4]/font/text())"))
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Electronics')]/../../td[4]/font/text())"
+                )
+            )
         wearElectronics.set(int((re.findall(r"\d+", carWearElectronics))[0]))
     except Exception:
         logger.exception("Unable to fill wear, see exception for details")
@@ -886,7 +1231,7 @@ def fillProfile():
         username = entryUsername.get()
         password = entryPassword.get()
 
-        if (not checkLogin(username, password)):
+        if not checkLogin(username, password):
             logger.warning("Incorrect login details provided by user")
             warningLabel.set("Incorrect Login Details")
             foregroundColour("Status.Label", "Red")
@@ -904,34 +1249,122 @@ def fillProfile():
         # Request the car information page and scrape the car character and part level and wear data
         browser.follow_link(url_regex=re.compile("UpdateCar"))
         tree = html.fromstring(browser.response().get_data())
+
         browser.back()
 
-        profilelevelChassis.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Chassis')]/../../td[2]/text())")))
-        profilelevelEngine.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Engine')]/../../td[2]/text())")))
+        profilelevelChassis.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Chassis')]/../../td[2]/text())"
+                )
+            )
+        )
+        profilelevelEngine.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Engine')]/../../td[2]/text())"
+                )
+            )
+        )
         profilelevelFWing.set(
-            int(tree.xpath("normalize-space(//b[contains(text(), 'Front wing')]/../../td[2]/text())")))
-        profilelevelRWing.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Rear wing')]/../../td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Front wing')]/../../td[2]/text())"
+                )
+            )
+        )
+        profilelevelRWing.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Rear wing')]/../../td[2]/text())"
+                )
+            )
+        )
         profilelevelUnderbody.set(
-            int(tree.xpath("normalize-space(//b[contains(text(), 'Underbody')]/../../td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Underbody')]/../../td[2]/text())"
+                )
+            )
+        )
         profilelevelSidepods.set(
-            int(tree.xpath("normalize-space(//b[contains(text(), 'Sidepods')]/../../td[2]/text())")))
-        profilelevelCooling.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Cooling')]/../../td[2]/text())")))
-        profilelevelGearbox.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Gearbox')]/../../td[2]/text())")))
-        profilelevelBrakes.set(int(tree.xpath("normalize-space(//b[contains(text(), 'Brakes')]/../../td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Sidepods')]/../../td[2]/text())"
+                )
+            )
+        )
+        profilelevelCooling.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Cooling')]/../../td[2]/text())"
+                )
+            )
+        )
+        profilelevelGearbox.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Gearbox')]/../../td[2]/text())"
+                )
+            )
+        )
+        profilelevelBrakes.set(
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Brakes')]/../../td[2]/text())"
+                )
+            )
+        )
         profilelevelSuspension.set(
-            int(tree.xpath("normalize-space(//b[contains(text(), 'Suspension')]/../../td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Suspension')]/../../td[2]/text())"
+                )
+            )
+        )
         profilelevelElectronics.set(
-            int(tree.xpath("normalize-space(//b[contains(text(), 'Electronics')]/../../td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//b[contains(text(), 'Electronics')]/../../td[2]/text())"
+                )
+            )
+        )
 
         profilePowerTotal.set(
-            int(tree.xpath("normalize-space(//td[contains(text(), 'Power')]/../../tr[3]/td[1]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//td[contains(text(), 'Power')]/../../tr[7]/td[1]/text())"
+                )
+            )
+        )
         profileHandlingTotal.set(
-            int(tree.xpath("normalize-space(//td[contains(text(), 'Power')]/../../tr[3]/td[2]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//td[contains(text(), 'Power')]/../../tr[7]/td[2]/text())"
+                )
+            )
+        )
         profileAccelerationTotal.set(
-            int(tree.xpath("normalize-space(//td[contains(text(), 'Power')]/../../tr[3]/td[3]/text())")))
+            int(
+                tree.xpath(
+                    "normalize-space(//td[contains(text(), 'Power')]/../../tr[7]/td[3]/text())"
+                )
+            )
+        )
 
-        partNames = ["Chassis", "Engine", "Front Wing", "Rear Wing", "Underbody", "Sidepods", "Cooling", "Gearbox",
-                     "Brakes", "Suspension", "Electronics"]
+        partNames = [
+            "Chassis",
+            "Engine",
+            "Front Wing",
+            "Rear Wing",
+            "Underbody",
+            "Sidepods",
+            "Cooling",
+            "Gearbox",
+            "Brakes",
+            "Suspension",
+            "Electronics",
+        ]
 
         for i in range(len(PHA) - 1):
             profile = profileCalc(partNames[i], profilePartLevels[i].get())
@@ -953,13 +1386,17 @@ def fillProfile():
 
         profileTestingPower.set(int(profilePowerTotal.get()) - int(PParts.get()))
         profileTestingHandling.set(int(profileHandlingTotal.get()) - int(HParts.get()))
-        profileTestingAcceleration.set(int(profileAccelerationTotal.get()) - int(AParts.get()))
+        profileTestingAcceleration.set(
+            int(profileAccelerationTotal.get()) - int(AParts.get())
+        )
     except Exception:
-        logger.exception("Unable to fill car character profile information - see exception for details")
+        logger.exception(
+            "Unable to fill car character profile information - see exception for details"
+        )
 
 
 def validateFloat(P):
-    if (P == ""):
+    if P == "":
         return True
     else:
         try:
@@ -974,7 +1411,7 @@ def validateFloat(P):
 
 
 def validateInt(P):
-    if (P == ""):
+    if P == "":
         return True
     else:
         try:
@@ -1004,6 +1441,7 @@ frameStrategy = ttk.Frame(notebook, name="strategy")
 frameWear = ttk.Frame(notebook, name="wear")
 frameProfile = ttk.Frame(notebook, name="profile")
 frameAnalysis = ttk.Frame(notebook, name="analysis")
+frameSponsor = ttk.Frame(notebook, name="sponsor")
 
 # Add the pages to notebook
 notebook.add(frameSetup, text="Setup")
@@ -1011,6 +1449,7 @@ notebook.add(frameStrategy, text="Strategy")
 notebook.add(frameWear, text="Car Wear")
 notebook.add(frameProfile, text="PHA")
 notebook.add(frameAnalysis, text="Analysis")
+notebook.add(frameSponsor, text="Sponsors")
 
 # Configure root layout
 root.columnconfigure(0, weight=1)
@@ -1258,14 +1697,58 @@ endSuspension.set(0)
 endElectronics.set(0)
 
 # Group the wear values for easy getting/setting
-startWears = [wearChassis, wearEngine, wearFWing, wearRWing, wearUnderbody, wearSidepods, wearCooling, wearGearbox,
-              wearBrakes, wearSuspension, wearElectronics]
-wearlevels = [wearlevelChassis, wearlevelEngine, wearlevelFWing, wearlevelRWing, wearlevelUnderbody, wearlevelSidepods,
-              wearlevelCooling, wearlevelGearbox, wearlevelBrakes, wearlevelSuspension, wearlevelElectronics]
-raceWears = [raceChassis, raceEngine, raceFWing, raceRWing, raceUnderbody, raceSidepods, raceCooling, raceGearbox,
-             raceBrakes, raceSuspension, raceElectronics]
-endWears = [endChassis, endEngine, endFWing, endRWing, endUnderbody, endSidepods, endCooling, endGearbox, endBrakes,
-            endSuspension, endElectronics]
+startWears = [
+    wearChassis,
+    wearEngine,
+    wearFWing,
+    wearRWing,
+    wearUnderbody,
+    wearSidepods,
+    wearCooling,
+    wearGearbox,
+    wearBrakes,
+    wearSuspension,
+    wearElectronics,
+]
+wearlevels = [
+    wearlevelChassis,
+    wearlevelEngine,
+    wearlevelFWing,
+    wearlevelRWing,
+    wearlevelUnderbody,
+    wearlevelSidepods,
+    wearlevelCooling,
+    wearlevelGearbox,
+    wearlevelBrakes,
+    wearlevelSuspension,
+    wearlevelElectronics,
+]
+raceWears = [
+    raceChassis,
+    raceEngine,
+    raceFWing,
+    raceRWing,
+    raceUnderbody,
+    raceSidepods,
+    raceCooling,
+    raceGearbox,
+    raceBrakes,
+    raceSuspension,
+    raceElectronics,
+]
+endWears = [
+    endChassis,
+    endEngine,
+    endFWing,
+    endRWing,
+    endUnderbody,
+    endSidepods,
+    endCooling,
+    endGearbox,
+    endBrakes,
+    endSuspension,
+    endElectronics,
+]
 
 # Profile variables
 profilelevelChassis = IntVar()
@@ -1292,9 +1775,19 @@ profilelevelBrakes.set(0)
 profilelevelSuspension.set(0)
 profilelevelElectronics.set(0)
 
-profilePartLevels = [profilelevelChassis, profilelevelEngine, profilelevelFWing, profilelevelRWing,
-                     profilelevelUnderbody, profilelevelSidepods, profilelevelCooling, profilelevelGearbox,
-                     profilelevelBrakes, profilelevelSuspension, profilelevelElectronics]
+profilePartLevels = [
+    profilelevelChassis,
+    profilelevelEngine,
+    profilelevelFWing,
+    profilelevelRWing,
+    profilelevelUnderbody,
+    profilelevelSidepods,
+    profilelevelCooling,
+    profilelevelGearbox,
+    profilelevelBrakes,
+    profilelevelSuspension,
+    profilelevelElectronics,
+]
 
 PChassis = DoubleVar()
 HChassis = DoubleVar()
@@ -1356,8 +1849,20 @@ HParts = DoubleVar()
 AParts = DoubleVar()
 PHAParts = [PParts, HParts, AParts]
 
-PHA = [PHAChassis, PHAEngine, PHAFrontWing, PHARearWing, PHAUnderbody, PHASidepods, PHACooling, PHAGearbox, PHABrakes,
-       PHASuspension, PHAElectronics, PHAParts]
+PHA = [
+    PHAChassis,
+    PHAEngine,
+    PHAFrontWing,
+    PHARearWing,
+    PHAUnderbody,
+    PHASidepods,
+    PHACooling,
+    PHAGearbox,
+    PHABrakes,
+    PHASuspension,
+    PHAElectronics,
+    PHAParts,
+]
 
 for part in PHA:
     for point in part:
@@ -1370,7 +1875,11 @@ profileTestingPower.set(0)
 profileTestingHandling.set(0)
 profileTestingAcceleration.set(0)
 
-profileTesting = [profileTestingPower, profileTestingHandling, profileTestingAcceleration]
+profileTesting = [
+    profileTestingPower,
+    profileTestingHandling,
+    profileTestingAcceleration,
+]
 
 profilePowerTotal = IntVar()
 profileHandlingTotal = IntVar()
@@ -1399,16 +1908,31 @@ labelsStatus = []
 # Build the pages
 # Setup page
 # BUTTONS
-ttk.Button(frameSetup, text="Calculate", command=calculateThreadController).grid(column=1, row=4, sticky=E + W)
-rememberCredentials = ttk.Checkbutton(frameSetup, text="Remember Credentials", onvalue=1, offvalue=0,
-                                      variable=inputRememberCredentials)
+ttk.Button(frameSetup, text="Calculate", command=calculateThreadController).grid(
+    column=1, row=4, sticky=E + W
+)
+rememberCredentials = ttk.Checkbutton(
+    frameSetup,
+    text="Remember Credentials",
+    onvalue=1,
+    offvalue=0,
+    variable=inputRememberCredentials,
+)
 rememberCredentials.grid(column=1, row=2, sticky=E + W)
 
 # RADIO
-radioQ1 = ttk.Radiobutton(frameSetup, text="Q1", variable=inputSession, value="Q1").grid(column=3, row=0, sticky=(W, E))
-radioQ2 = ttk.Radiobutton(frameSetup, text="Q2", variable=inputSession, value="Q2").grid(column=3, row=1, sticky=(W, E))
-radioRace = ttk.Radiobutton(frameSetup, text="Race", variable=inputSession, value="Race").grid(column=3, row=2,
-                                                                                               sticky=(W, E))
+radioQ1 = ttk.Radiobutton(
+    frameSetup, text="Q1", variable=inputSession, value="Q1"
+).grid(column=3, row=0, sticky=(W, E))
+radioQ2 = ttk.Radiobutton(
+    frameSetup, text="Q2", variable=inputSession, value="Q2"
+).grid(column=3, row=1, sticky=(W, E))
+radioRace = ttk.Radiobutton(
+    frameSetup, text="Race", variable=inputSession, value="Race"
+).grid(column=3, row=2, sticky=(W, E))
+radioTesting = ttk.Radiobutton(
+    frameSetup, text="Testing", variable=inputSession, value="Testing"
+).grid(column=3, row=3, sticky=(W, E))
 radioDry = ttk.Radiobutton(frameSetup, text="Dry", variable=inputWeather, value="Dry")
 radioDry.grid(column=3, row=4, sticky=(W, E))
 radioWet = ttk.Radiobutton(frameSetup, text="Wet", variable=inputWeather, value="Wet")
@@ -1423,18 +1947,32 @@ entryPassword.grid(column=1, row=1, sticky=(W, E))
 # LABELS
 ttk.Label(frameSetup, text="Email: ").grid(column=0, row=0, sticky=(W, E))
 ttk.Label(frameSetup, text="Password: ").grid(column=0, row=1, sticky=(W, E))
-ttk.Label(frameSetup, text="Session: ", padding="40 0 0 0").grid(column=2, row=0, sticky=E)
+ttk.Label(frameSetup, text="Session: ", padding="40 0 0 0").grid(
+    column=2, row=0, sticky=E
+)
 ttk.Label(frameSetup, text="Weather: ").grid(column=2, row=4, sticky=E)
 labelSetupStatus = ttk.Label(frameSetup, textvariable=warningLabel)
 labelSetupStatus.grid(column=1, row=3)
 labelsStatus.append(labelSetupStatus)
 
-ttk.Label(frameSetup, text="Front Wing: ", padding="40 0 0 0").grid(column=5, row=0, sticky=W + E)
-ttk.Label(frameSetup, text="Rear Wing: ", padding="40 0 0 0").grid(column=5, row=1, sticky=W + E)
-ttk.Label(frameSetup, text="Engine: ", padding="40 0 0 0").grid(column=5, row=2, sticky=W + E)
-ttk.Label(frameSetup, text="Brakes: ", padding="40 0 0 0").grid(column=5, row=3, sticky=W + E)
-ttk.Label(frameSetup, text="Gear: ", padding="40 0 0 0").grid(column=5, row=4, sticky=W + E)
-ttk.Label(frameSetup, text="Suspension: ", padding="40 0 0 0").grid(column=5, row=5, sticky=W + E)
+ttk.Label(frameSetup, text="Front Wing: ", padding="40 0 0 0").grid(
+    column=5, row=0, sticky=W + E
+)
+ttk.Label(frameSetup, text="Rear Wing: ", padding="40 0 0 0").grid(
+    column=5, row=1, sticky=W + E
+)
+ttk.Label(frameSetup, text="Engine: ", padding="40 0 0 0").grid(
+    column=5, row=2, sticky=W + E
+)
+ttk.Label(frameSetup, text="Brakes: ", padding="40 0 0 0").grid(
+    column=5, row=3, sticky=W + E
+)
+ttk.Label(frameSetup, text="Gear: ", padding="40 0 0 0").grid(
+    column=5, row=4, sticky=W + E
+)
+ttk.Label(frameSetup, text="Suspension: ", padding="40 0 0 0").grid(
+    column=5, row=5, sticky=W + E
+)
 
 ttk.Label(frameSetup, textvariable=frontWing).grid(column=6, row=0)
 ttk.Label(frameSetup, textvariable=rearWing).grid(column=6, row=1)
@@ -1445,70 +1983,139 @@ ttk.Label(frameSetup, textvariable=suspension).grid(column=6, row=5)
 
 # Strategy page
 # BUTTONS
-ttk.Button(frameStrategy, text="Calculate", command=calculateThreadController).grid(column=9, columnspan=2, row=1,
-                                                                                    sticky=E + W)
+ttk.Button(frameStrategy, text="Calculate", command=calculateThreadController).grid(
+    column=9, columnspan=2, row=1, sticky=E + W
+)
 
 # RADIO
 
 # ENTRY
-ttk.Entry(frameStrategy, width=10, textvariable=inputWear, validate="key", validatecommand=(vcmdInt, '%P'),
-          justify="center").grid(column=10, row=0, sticky=(W, E))
-ttk.Entry(frameStrategy, width=10, textvariable=inputLaps, validate="key", validatecommand=(vcmdInt, '%P'),
-          justify="center").grid(column=9, row=4, sticky=W + E)
+ttk.Entry(
+    frameStrategy,
+    width=10,
+    textvariable=inputWear,
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+    justify="center",
+).grid(column=10, row=0, sticky=(W, E))
+ttk.Entry(
+    frameStrategy,
+    width=10,
+    textvariable=inputLaps,
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+    justify="center",
+).grid(column=9, row=4, sticky=W + E)
 
 # LABELS
 labelStrategyStatus = ttk.Label(frameStrategy, textvariable=warningLabel)
 labelStrategyStatus.grid(column=9, row=2, columnspan=2)
 labelsStatus.append(labelStrategyStatus)
-ttk.Label(frameStrategy, text="Wear % :", padding="0 10 5 5").grid(column=9, row=0, sticky=(W))
-ttk.Label(frameStrategy, text="Laps", padding="0 0 10 0", justify="center").grid(column=9, row=3)
-ttk.Label(frameStrategy, text="Fuel", padding="0 0 10 0", justify="center").grid(column=10, row=3)
+ttk.Label(frameStrategy, text="Wear % :", padding="0 10 5 5").grid(
+    column=9, row=0, sticky=(W)
+)
+ttk.Label(frameStrategy, text="Laps", padding="0 0 10 0", justify="center").grid(
+    column=9, row=3
+)
+ttk.Label(frameStrategy, text="Fuel", padding="0 0 10 0", justify="center").grid(
+    column=10, row=3
+)
 
 ttk.Label(frameStrategy, text="Tyre", padding="0 10").grid(column=0, row=0, sticky=(W))
-ttk.Label(frameStrategy, text="Stops", padding="0 10", justify="center").grid(column=1, row=0, sticky=(E))
-ttk.Label(frameStrategy, text="Stint Laps", padding="0 10", justify="center").grid(column=2, row=0, sticky=W)
-ttk.Label(frameStrategy, text="Fuel Load (L)", padding="0 10", justify="center").grid(column=3, row=0, sticky=(W))
-ttk.Label(frameStrategy, text="Pit Time (s)", padding="0 10", justify="center").grid(column=4, row=0, sticky=(W))
-ttk.Label(frameStrategy, text="TC Loss (s)", padding="0 10", justify="center").grid(column=5, row=0, sticky=(W))
-ttk.Label(frameStrategy, text="Fuel Loss (s)", padding="0 10", justify="center").grid(column=6, row=0, sticky=(W))
-ttk.Label(frameStrategy, text="Pit Total (s)", padding="0 10", justify="center").grid(column=7, row=0, sticky=(W))
-ttk.Label(frameStrategy, text="Total (s)", padding="0 10", justify="center").grid(column=8, row=0, sticky=(W))
+ttk.Label(frameStrategy, text="Stops", padding="0 10", justify="center").grid(
+    column=1, row=0, sticky=(E)
+)
+ttk.Label(frameStrategy, text="Stint Laps", padding="0 10", justify="center").grid(
+    column=2, row=0, sticky=W
+)
+ttk.Label(frameStrategy, text="Fuel Load (L)", padding="0 10", justify="center").grid(
+    column=3, row=0, sticky=(W)
+)
+ttk.Label(frameStrategy, text="Pit Time (s)", padding="0 10", justify="center").grid(
+    column=4, row=0, sticky=(W)
+)
+ttk.Label(frameStrategy, text="TC Loss (s)", padding="0 10", justify="center").grid(
+    column=5, row=0, sticky=(W)
+)
+ttk.Label(frameStrategy, text="Fuel Loss (s)", padding="0 10", justify="center").grid(
+    column=6, row=0, sticky=(W)
+)
+ttk.Label(frameStrategy, text="Pit Total (s)", padding="0 10", justify="center").grid(
+    column=7, row=0, sticky=(W)
+)
+ttk.Label(frameStrategy, text="Total (s)", padding="0 10", justify="center").grid(
+    column=8, row=0, sticky=(W)
+)
 
-ttk.Label(frameStrategy, text="Extra Soft", padding="0 0 10 0").grid(column=0, row=1, sticky=(W, E))
-ttk.Label(frameStrategy, text="Soft", padding="0 0 10 0").grid(column=0, row=2, sticky=(W, E))
-ttk.Label(frameStrategy, text="Medium", padding="0 0 10 0").grid(column=0, row=3, sticky=(W, E))
-ttk.Label(frameStrategy, text="Hard", padding="0 0 10 0").grid(column=0, row=4, sticky=(W, E))
-ttk.Label(frameStrategy, text="Rain", padding="0 0 10 0").grid(column=0, row=5, sticky=(W, E))
+ttk.Label(frameStrategy, text="Extra Soft", padding="0 0 10 0").grid(
+    column=0, row=1, sticky=(W, E)
+)
+ttk.Label(frameStrategy, text="Soft", padding="0 0 10 0").grid(
+    column=0, row=2, sticky=(W, E)
+)
+ttk.Label(frameStrategy, text="Medium", padding="0 0 10 0").grid(
+    column=0, row=3, sticky=(W, E)
+)
+ttk.Label(frameStrategy, text="Hard", padding="0 0 10 0").grid(
+    column=0, row=4, sticky=(W, E)
+)
+ttk.Label(frameStrategy, text="Rain", padding="0 0 10 0").grid(
+    column=0, row=5, sticky=(W, E)
+)
 
 ttk.Label(frameStrategy, textvariable=lapsUpper, justify="center").grid(column=9, row=5)
-ttk.Label(frameStrategy, textvariable=lapsFuelLoadLower, justify="center").grid(column=10, row=4)
-ttk.Label(frameStrategy, textvariable=lapsFuelLoadUpper, justify="center").grid(column=10, row=5)
+ttk.Label(frameStrategy, textvariable=lapsFuelLoadLower, justify="center").grid(
+    column=10, row=4
+)
+ttk.Label(frameStrategy, textvariable=lapsFuelLoadUpper, justify="center").grid(
+    column=10, row=5
+)
 
-ttk.Label(frameStrategy, text="Track Information", padding="0 10 10 0").grid(column=0, row=6, columnspan=2,
-                                                                             sticky=W + E)
-ttk.Label(frameStrategy, text="Track Name:", padding="0 0 10 0").grid(column=0, columnspan=2, row=7, sticky=W)
-ttk.Label(frameStrategy, text="Laps:", padding="0 0 10 0").grid(column=0, columnspan=2, row=8, sticky=W)
-ttk.Label(frameStrategy, text="Lap Distance:", padding="0 0 10 0").grid(column=0, columnspan=2, row=9, sticky=W)
-ttk.Label(frameStrategy, text="Distance:", padding="0 0 10 0").grid(column=0, columnspan=2, row=10, sticky=W)
-ttk.Label(frameStrategy, text="Pit In/Out:", padding="0 0 10 0").grid(column=0, columnspan=2, row=11, sticky=W)
+ttk.Label(frameStrategy, text="Track Information", padding="0 10 10 0").grid(
+    column=0, row=6, columnspan=2, sticky=W + E
+)
+ttk.Label(frameStrategy, text="Track Name:", padding="0 0 10 0").grid(
+    column=0, columnspan=2, row=7, sticky=W
+)
+ttk.Label(frameStrategy, text="Laps:", padding="0 0 10 0").grid(
+    column=0, columnspan=2, row=8, sticky=W
+)
+ttk.Label(frameStrategy, text="Lap Distance:", padding="0 0 10 0").grid(
+    column=0, columnspan=2, row=9, sticky=W
+)
+ttk.Label(frameStrategy, text="Distance:", padding="0 0 10 0").grid(
+    column=0, columnspan=2, row=10, sticky=W
+)
+ttk.Label(frameStrategy, text="Pit In/Out:", padding="0 0 10 0").grid(
+    column=0, columnspan=2, row=11, sticky=W
+)
 
-ttk.Label(frameStrategy, text="GPRO Data", padding="0 0 10 0").grid(column=2, columnspan=2, row=6, sticky=W + S)
-ttk.Label(frameStrategy, textvariable=GPROnextTrackName, padding="0 0 10 0").grid(column=2, columnspan=2, row=7,
-                                                                                  sticky=W)
-ttk.Label(frameStrategy, textvariable=GPROnextTrackLaps, padding="0 0 10 0").grid(column=2, columnspan=2, row=8,
-                                                                                  sticky=W)
-ttk.Label(frameStrategy, textvariable=GPROnextTrackLapDistance, padding="0 0 10 0").grid(column=2, columnspan=2, row=9,
-                                                                                         sticky=W)
-ttk.Label(frameStrategy, textvariable=GPROnextTrackDistance, padding="0 0 10 0").grid(column=2, columnspan=2, row=10,
-                                                                                      sticky=W)
-ttk.Label(frameStrategy, textvariable=GPROnextTrackPitInOut, padding="0 0 10 0").grid(column=2, columnspan=2, row=11,
-                                                                                      sticky=W)
+ttk.Label(frameStrategy, text="GPRO Data", padding="0 0 10 0").grid(
+    column=2, columnspan=2, row=6, sticky=W + S
+)
+ttk.Label(frameStrategy, textvariable=GPROnextTrackName, padding="0 0 10 0").grid(
+    column=2, columnspan=2, row=7, sticky=W
+)
+ttk.Label(frameStrategy, textvariable=GPROnextTrackLaps, padding="0 0 10 0").grid(
+    column=2, columnspan=2, row=8, sticky=W
+)
+ttk.Label(
+    frameStrategy, textvariable=GPROnextTrackLapDistance, padding="0 0 10 0"
+).grid(column=2, columnspan=2, row=9, sticky=W)
+ttk.Label(frameStrategy, textvariable=GPROnextTrackDistance, padding="0 0 10 0").grid(
+    column=2, columnspan=2, row=10, sticky=W
+)
+ttk.Label(frameStrategy, textvariable=GPROnextTrackPitInOut, padding="0 0 10 0").grid(
+    column=2, columnspan=2, row=11, sticky=W
+)
 
 x = 1
 for values in grid:
     y = 1
     for value in values:
-        ttk.Label(frameStrategy, textvariable=value, justify="center").grid(column=x, row=y)
+        ttk.Label(frameStrategy, textvariable=value, justify="center").grid(
+            column=x, row=y
+        )
         y = y + 1
     x = x + 1
 
@@ -1522,63 +2129,210 @@ labelHardTotal = ttk.Label(frameStrategy, textvariable=totals[3], justify="cente
 labelHardTotal.grid(column=8, row=4)
 labelRainTotal = ttk.Label(frameStrategy, textvariable=totals[4], justify="center")
 labelRainTotal.grid(column=8, row=5)
-labelsTotal = [labelExtraTotal, labelSoftTotal, labelMediumTotal, labelHardTotal, labelRainTotal]
+labelsTotal = [
+    labelExtraTotal,
+    labelSoftTotal,
+    labelMediumTotal,
+    labelHardTotal,
+    labelRainTotal,
+]
 
 # Wear page
 # BUTTONS
-ttk.Button(frameWear, text="Calculate", command=calculateThreadController).grid(column=2, columnspan=2, row=0,
-                                                                                sticky=E + W)
-ttk.Button(frameWear, text="Fill", command=fillThreadController).grid(column=0, columnspan=2, row=0, sticky=E + W)
+ttk.Button(frameWear, text="Calculate", command=calculateThreadController).grid(
+    column=2, columnspan=2, row=0, sticky=E + W
+)
+ttk.Button(frameWear, text="Fill", command=fillThreadController).grid(
+    column=0, columnspan=2, row=0, sticky=E + W
+)
 # RADIO
 # ENTRY
-ttk.Entry(frameWear, width=5, textvariable=wearClearTrackRisk, validate="key", validatecommand=(vcmdInt, '%P'),
-          justify="center").grid(column=7, row=0, sticky=W + E)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearClearTrackRisk,
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+    justify="center",
+).grid(column=7, row=0, sticky=W + E)
 
-ttk.Entry(frameWear, width=5, textvariable=wearChassis, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=1, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearEngine, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=2, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearFWing, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=3, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearRWing, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=4, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearUnderbody, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=5, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearSidepods, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=6, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearCooling, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=7, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearGearbox, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=8, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearBrakes, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=9, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearSuspension, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=10, row=2)
-ttk.Entry(frameWear, width=5, textvariable=wearElectronics, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=11, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearChassis,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=1, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearEngine,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=2, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearFWing,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=3, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearRWing,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=4, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearUnderbody,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=5, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearSidepods,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=6, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearCooling,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=7, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearGearbox,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=8, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearBrakes,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=9, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearSuspension,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=10, row=2)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearElectronics,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=11, row=2)
 
-ttk.Entry(frameWear, width=5, textvariable=wearlevelChassis, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=1, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelEngine, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=2, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelFWing, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=3, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelRWing, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=4, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelUnderbody, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=5, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelSidepods, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=6, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelCooling, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=7, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelGearbox, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=8, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelBrakes, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=9, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelSuspension, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=10, row=3)
-ttk.Entry(frameWear, width=5, textvariable=wearlevelElectronics, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=11, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelChassis,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=1, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelEngine,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=2, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelFWing,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=3, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelRWing,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=4, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelUnderbody,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=5, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelSidepods,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=6, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelCooling,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=7, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelGearbox,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=8, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelBrakes,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=9, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelSuspension,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=10, row=3)
+ttk.Entry(
+    frameWear,
+    width=5,
+    textvariable=wearlevelElectronics,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=11, row=3)
 # LABELS
 labelWearStatus = ttk.Label(frameWear, textvariable=warningLabel)
 labelWearStatus.grid(column=4, row=0, columnspan=2)
@@ -1638,45 +2392,143 @@ labelEndSuspension.grid(column=10, row=5)
 labelEndElectronics = ttk.Label(frameWear, textvariable=endElectronics, padding="5 0")
 labelEndElectronics.grid(column=11, row=5)
 
-endLabels = [labelEndChassis, labelEndEngine, labelEndFWing, labelEndRWing, labelEndUnderbody, labelEndSidepods,
-             labelEndCooling, labelEndGearbox, labelEndBrakes, labelEndSuspension, labelEndElectronics]
+endLabels = [
+    labelEndChassis,
+    labelEndEngine,
+    labelEndFWing,
+    labelEndRWing,
+    labelEndUnderbody,
+    labelEndSidepods,
+    labelEndCooling,
+    labelEndGearbox,
+    labelEndBrakes,
+    labelEndSuspension,
+    labelEndElectronics,
+]
 
 # Profile Page
 # BUTTONS
-ttk.Button(frameProfile, text="Fill", command=fillThreadController).grid(column=0, columnspan=2, row=0, sticky=E + W)
-ttk.Button(frameProfile, text="Calculate", command=calculateThreadController).grid(column=2, columnspan=2, row=0,
-                                                                                   sticky=E + W)
+ttk.Button(frameProfile, text="Fill", command=fillThreadController).grid(
+    column=0, columnspan=2, row=0, sticky=E + W
+)
+ttk.Button(frameProfile, text="Calculate", command=calculateThreadController).grid(
+    column=2, columnspan=2, row=0, sticky=E + W
+)
 
 # ENTRY
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelChassis, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=1, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelEngine, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=2, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelFWing, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=3, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelRWing, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=4, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelUnderbody, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=5, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelSidepods, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=6, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelCooling, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=7, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelGearbox, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=8, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelBrakes, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=9, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelSuspension, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=10, row=2)
-ttk.Entry(frameProfile, width=5, textvariable=profilelevelElectronics, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=11, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelChassis,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=1, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelEngine,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=2, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelFWing,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=3, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelRWing,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=4, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelUnderbody,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=5, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelSidepods,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=6, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelCooling,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=7, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelGearbox,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=8, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelBrakes,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=9, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelSuspension,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=10, row=2)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profilelevelElectronics,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=11, row=2)
 
-ttk.Entry(frameProfile, width=5, textvariable=profileTestingPower, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=13, row=3)
-ttk.Entry(frameProfile, width=5, textvariable=profileTestingHandling, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=13, row=4)
-ttk.Entry(frameProfile, width=5, textvariable=profileTestingAcceleration, justify="center", validate="key",
-          validatecommand=(vcmdInt, '%P')).grid(column=13, row=5)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profileTestingPower,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=13, row=3)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profileTestingHandling,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=13, row=4)
+ttk.Entry(
+    frameProfile,
+    width=5,
+    textvariable=profileTestingAcceleration,
+    justify="center",
+    validate="key",
+    validatecommand=(vcmdInt, "%P"),
+).grid(column=13, row=5)
 
 # LABELS
 labelProfileStatus = ttk.Label(frameProfile, textvariable=warningLabel)
@@ -1712,26 +2564,25 @@ x = 1
 for part in PHA:
     y = 3
     for point in part:
-        ttk.Label(frameProfile, textvariable=point, justify="center").grid(column=x, row=y)
+        ttk.Label(frameProfile, textvariable=point, justify="center").grid(
+            column=x, row=y
+        )
         y += 1
     x += 1
 
 # Analysis Page
 # BUTTONS
-ttk.Button(frameAnalysis, text="Calculate", command=calculateThreadController).grid(column=0, columnspan=2, row=0,
-                                                                                    sticky=E + W, padx=5, pady=5)
+ttk.Button(frameAnalysis, text="Calculate", command=calculateThreadController).grid(
+    column=0, columnspan=2, row=0, sticky=E + W, padx=5, pady=5
+)
 
 # RADIOS
-radioQ1 = ttk.Radiobutton(frameAnalysis, text="Pre-Race", variable=inputAnalysis, value="Pre-Race").grid(column=3,
-                                                                                                         row=0,
-                                                                                                         sticky=(W, E),
-                                                                                                         padx=5, pady=5)
-radioQ2 = ttk.Radiobutton(frameAnalysis, text="Post-Race", variable=inputAnalysis, value="Post-Race").grid(column=3,
-                                                                                                           row=1,
-                                                                                                           sticky=(
-                                                                                                               W, E),
-                                                                                                           padx=5,
-                                                                                                           pady=5)
+radioQ1 = ttk.Radiobutton(
+    frameAnalysis, text="Pre-Race", variable=inputAnalysis, value="Pre-Race"
+).grid(column=3, row=0, sticky=(W, E), padx=5, pady=5)
+radioQ2 = ttk.Radiobutton(
+    frameAnalysis, text="Post-Race", variable=inputAnalysis, value="Post-Race"
+).grid(column=3, row=1, sticky=(W, E), padx=5, pady=5)
 
 # LABELS
 labelAnalysisStatus = ttk.Label(frameAnalysis, textvariable=warningLabel)
@@ -1742,16 +2593,46 @@ labelsStatus.append(labelAnalysisStatus)
 for label in labelsStatus:
     label.configure(style="Status.Label")
 
+# Sponsors page
+# BUTTONS
+# ttk.Button(frameStrategy, text="Calculate", command=calculateThreadController).grid(
+#   column=9, columnspan=2, row=1, sticky=E + W
+# )
+ttk.Button(frameSponsor, text="Fill", command=fillThreadController).grid(
+    column=0, columnspan=2, row=0, sticky=W, padx=5, pady=5
+)
+# RADIO
+
+# ENTRY
+
+
+# LABELS
+labelSponsorStatus = ttk.Label(frameSponsor, textvariable=warningLabel)
+labelSponsorStatus.grid(column=9, row=2, columnspan=2)
+
+ttk.Label(frameSponsor, text="Sponsor").grid(column=0, row=1, sticky=(W))
+ttk.Label(frameSponsor, text="Car spot").grid(column=1, row=1, sticky=(W))
+ttk.Label(frameSponsor, text="Amount per race").grid(column=2, row=1, sticky=(W))
+ttk.Label(frameSponsor, text="Races left").grid(column=3, row=1, sticky=(W))
+labelsStatus.append(labelSponsorStatus)
+
 # Automatically organize the window
-for child in frameSetup.winfo_children(): child.grid_configure(padx=5, pady=5)
-for child in frameStrategy.winfo_children(): child.grid_configure(padx=5, pady=5)
-for child in frameWear.winfo_children(): child.grid_configure(padx=5, pady=5)
-for child in frameProfile.winfo_children(): child.grid_configure(padx=5, pady=5)
-for child in frameAnalysis.winfo_children(): child.grid_configure(padx=5, pady=5)
+for child in frameSetup.winfo_children():
+    child.grid_configure(padx=5, pady=5)
+for child in frameStrategy.winfo_children():
+    child.grid_configure(padx=5, pady=5)
+for child in frameWear.winfo_children():
+    child.grid_configure(padx=5, pady=5)
+for child in frameProfile.winfo_children():
+    child.grid_configure(padx=5, pady=5)
+for child in frameAnalysis.winfo_children():
+    child.grid_configure(padx=5, pady=5)
+for child in frameSponsor.winfo_children():
+    child.grid_configure(padx=5, pady=5)
 
 # Set some QOL things, like auto focus for text entry and how to handle an "Enter" press
 entryUsername.focus()
-root.bind('<Return>', calculateThreadController)
+root.bind("<Return>", calculateThreadController)
 root.resizable(False, False)
 
 # Pack the notebook after doing everything else to set the window size and organize everything
